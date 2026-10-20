@@ -100,7 +100,7 @@ tonerLayer.on('add', async () => {
 
 const basemaps = {
   'CARTO Positron': cartoGL('positron'),
-  'Carto Toner': tonerLayer,
+  'Carto Toner (wie QGIS)': tonerLayer,
   'CARTO Voyager': cartoGL('voyager'),
   'CARTO Dark Matter': cartoGL('dark-matter'),
   'OpenStreetMap': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -187,12 +187,12 @@ const stations = L.geoJSON(DATA.stations, {
 });
 
 // ---------- Standortvorschläge (_PROP)
-function rankColor(r) {   // identisch zum QGIS-Ausdruck
-  if (r >= 0.8) return '#ff7f00';
-  if (r >= 0.6) return '#ffb347';
-  if (r >= 0.4) return '#ffe135';
-  if (r >= 0.2) return '#a6d96a';
-  return '#1a9641';
+function rankColor(r) {   // Rang 1 = bester Standort -> niedriger Anteil = grün
+  if (r <= 0.2) return '#1a9641';   // Top 20 %
+  if (r <= 0.4) return '#a6d96a';
+  if (r <= 0.6) return '#ffe135';
+  if (r <= 0.8) return '#ffb347';
+  return '#ff7f00';                 // unterste 20 %
 }
 const propLayers = {};
 const allPropBounds = L.latLngBounds([]);
@@ -278,7 +278,7 @@ new Title().addTo(map);
 // ---------- Legende
 const Legend = L.Control.extend({ options:{ position:'bottomleft' }, onAdd() {
   const d = L.DomUtil.create('div', 'legend');
-  const ranks = [['#ff7f00','Top 20 % (MCA-Rang)'],['#ffb347','60–80 %'],['#ffe135','40–60 %'],['#a6d96a','20–40 %'],['#1a9641','unterste 20 %']];
+  const ranks = [['#1a9641','Top 20 % (MCA-Rang 1 = bester)'],['#a6d96a','20–40 %'],['#ffe135','40–60 %'],['#ffb347','60–80 %'],['#ff7f00','unterste 20 %']];
   d.innerHTML = `<div class="toggle">Legende ▾</div><div class="body">
     <h4>Standortvorschläge</h4>
     ${ranks.map(([c, t]) => `<div class="row"><span class="ring" style="border-color:${c}"></span>${t}</div>`).join('')}
